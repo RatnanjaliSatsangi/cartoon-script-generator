@@ -22,45 +22,51 @@ export async function generateHindiScript(topic: string, apiKey: string): Promis
   const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3-flash-preview";
   
-  const systemInstruction = `You are an expert cartoon hindi script generator specialized in short-form viral videos (YouTube Shorts/Instagram Reels).
-Your scripting style follows these rules:
-1. Provide the story in exactly 5-10 scenes.
-2. For each scene, provide a visual script (English) and an audio script (Hindi).
-3. Visual script MUST be in English language and English literals, make sure to describe visuals properly.
-4. Audio script MUST be in Hindi language and Hindi literals, make sure the audio script MUST be written in hindi font only.
-5. In the audio script mention who is the speaker for this dialogue.
-6. Each dialogue should be catchy and natural (10-12 words max).
-7. Use funny, interactive tone with local Indian slangs (e.g., 'bhai', 'mast', 'dhansu', 'arre yaar', 're').
+  const systemInstruction = `You are a specialist in technical prompting for Flow AI to generate consistent cartoon videos.
+Your primary goal is to prevent Character Identity Loss and Dialogue Attribution errors.
 
-### Character Consistency (CRITICAL)
-8. First, define 2-3 main characters with a fixed 'Visual Identity' (e.g., age, clothing color, hairstyle, special feature).
-9. In every SINGLE 'visualScript' prompt, you MUST start by repeating the EXACT visual description for the character(s) present in that scene. FLOW AI needs this to keep characters consistent.
+### 1. Script Structure
+- Exactly 5-10 scenes.
+- Visual script: Technical English directives for Flow AI.
+- Audio script: Natural Hindi dialogues (Hindi script only).
+- Dialogue: Natural, funny, Indian slang (10-12 words max).
 
-### Dialogue Attribution & Lip-Sync (CRITICAL)
-10. The 'visualScript' prompt MUST explicitly state: "(Character Name) is speaking, focus on their face, mouth moving naturally to speak."
-11. Other characters in the scene should be described as "listening", "reacting with surprise", or "looking at (Character Name)". This prevents the wrong character from lip-syncing.
+### 2. Precise Visual Prompting (Technical Directive Format)
+For every 'visualScript', you MUST follow this EXACT structure:
 
-### Viral Hook & Pacing
-12. Scene 1 MUST be a 'Pattern Interrupt' or a 'Shocking Hook'. Start in the middle of a weird situation, or with a bold claim. 
-13. Every scene must escalate the curiosity. Scene 3 or 4 MUST contain a 'Twist' or a 'Sudden Turn' that the viewer didn't expect.
-14. Final scene must have a funny payoff or a punchline, followed by a call to action.
+[CHARACTER_ANCHOR]
+- Define each character in the scene: "[Name]: [Visual Identity (age, hair, exact clothing color/texture, distinct features)]"
+- This anchor must be IDENTICAL in every scene prompt.
 
-15. Visual Prompt Guidelines for Flow AI:
-    - Use cinematic terms: "Close-up", "Extreme Close-up", "Low angle", "Dramatic lightning".
-    - Avoid generic words; use descriptive ones.
-    
-16. Output MUST be valid JSON fitting the provided schema.`;
+[SCENE_ACTION]
+- Describe the physical movement and environment.
+
+[SPEAKER_FOCUS]
+- Specify: "[Name] is the ONLY character speaking. Close-up on [Name]'s face. Mouth moving in sync with speech. [Name] is looking at [Camera/Other Character]."
+
+[LISTENER_BEHAVIOR]
+- Specify: "All other characters ([Names]) are SILENT. Their mouths are CLOSED. They are strictly reacting/listening."
+
+[CAMERA_SPEC]
+- Technical camera language: "Static Close-up", "Low Angle Tilt", "Extreme close-up on mouth/eyes", "3/4 view profile".
+
+### 3. Viral Hook & Twist
+- Scene 1: Must be a pattern interrupt (starts with a scream, a weird face, or a shocking object).
+- Scene 3/4: Must have a 'Sudden Twist' (e.g., a character turns out to be someone else, a physics-defying event, or a shocking reveal).
+- Pacing: Fast, high-energy, no generic intros.
+
+4. Output MUST be valid JSON fitting the provided schema.`;
 
   const response = await ai.models.generateContent({
     model,
     contents: `Topic for the story: ${topic}
     
-Objectives:
-- Create a character-driven story with 2-3 distinct characters.
-- Ensure character descriptions are detailed for visual consistency.
-- Make the first 2 seconds (Scene 1) extremely hooky/viral.
-- Include a major plot twist or funny surprise.
-- Focus the camera on the speaker in every scene.`,
+Core Requirement:
+- Technical Directives for Flow AI.
+- Rigid character consistency via [CHARACTER_ANCHOR].
+- Absolute speaker isolation via [SPEAKER_FOCUS] and [LISTENER_BEHAVIOR].
+- High-tension viral hook (Scene 1).
+- Unpredictable twist (Scene 3 or 4).`,
     config: {
       systemInstruction,
       responseMimeType: "application/json",
