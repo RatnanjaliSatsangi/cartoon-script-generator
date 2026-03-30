@@ -51,7 +51,24 @@ export default function App() {
   };
 
   const formatSceneMarkdown = (scene: Scene) => {
-    return `### Scene ${scene.sceneNumber}\n**Visual Script:** ${scene.visualScript}\n**Audio Script:** ${scene.audioScript}`;
+    return `### Scene ${scene.sceneNumber} (${scene.speaker} Speaking)\n**Visual Prompt:** ${scene.visualScript}\n**Audio Dialogue:** ${scene.audioScript}`;
+  };
+
+  const copyFullScript = () => {
+    if (!script) return;
+    
+    let fullText = `# ${script.title}\n\n`;
+    fullText += `## Character Identities (For Flow AI Consistency)\n`;
+    script.characterDefinitions.forEach(char => {
+      fullText += `- **${char.name}**: ${char.visualIdentity}\n`;
+    });
+    fullText += `\n---\n\n`;
+    
+    script.scenes.forEach(scene => {
+      fullText += formatSceneMarkdown(scene) + `\n\n`;
+    });
+    
+    copyToClipboard(fullText, 999);
   };
 
   return (
@@ -134,6 +151,29 @@ export default function App() {
                 </button>
               </div>
 
+              {/* Character Identity Anchors */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-[#5A5A40]/5 rounded-3xl p-6 border border-[#5A5A40]/10"
+              >
+                <div className="flex items-center gap-2 mb-4 text-[#5A5A40]">
+                  <Sparkles size={18} />
+                  <h4 className="font-bold uppercase tracking-widest text-xs">Character Visual Identities</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {script.characterDefinitions.map((char, i) => (
+                    <div key={i} className="bg-white p-4 rounded-2xl border border-[#1A1A1A]/5 shadow-sm">
+                      <p className="font-bold text-[#5A5A40] mb-1">{char.name}</p>
+                      <p className="text-sm text-[#1A1A1A]/70 leading-relaxed italic">"{char.visualIdentity}"</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-[10px] uppercase tracking-wider opacity-40 font-bold">
+                  * Above descriptions are automatically repeated in every visual prompt to keep Flow AI consistent.
+                </p>
+              </motion.div>
+
               <div className="grid gap-6">
                 {script.scenes.map((scene, idx) => (
                   <motion.div
@@ -144,9 +184,14 @@ export default function App() {
                     className="group bg-white rounded-3xl p-6 border border-[#1A1A1A]/5 hover:border-[#5A5A40]/30 transition-all shadow-sm hover:shadow-md relative"
                   >
                     <div className="flex items-start justify-between mb-4">
-                      <span className="text-xs font-bold uppercase tracking-widest bg-[#F5F5F0] px-3 py-1 rounded-full">
-                        Scene {scene.sceneNumber}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-widest bg-[#F5F5F0] px-3 py-1 rounded-full">
+                          Scene {scene.sceneNumber}
+                        </span>
+                        <span className="text-[10px] font-black uppercase tracking-tighter text-white bg-[#5A5A40] px-2 py-0.5 rounded">
+                          {scene.speaker} Speaking
+                        </span>
+                      </div>
                       <button
                         onClick={() => copyToClipboard(formatSceneMarkdown(scene), idx)}
                         className="p-2 hover:bg-[#F5F5F0] rounded-full transition-colors text-[#1A1A1A]/40 hover:text-[#5A5A40]"
@@ -163,7 +208,7 @@ export default function App() {
                         </div>
                         <div>
                           <p className="text-xs uppercase font-bold text-[#1A1A1A]/40 mb-1">Visual Prompt (English)</p>
-                          <p className="text-[#1A1A1A] leading-relaxed">{scene.visualScript}</p>
+                          <p className="text-[#1A1A1A] leading-relaxed bg-[#F5F5F0]/30 p-2 rounded-lg border border-dashed border-[#1A1A1A]/5 font-mono text-sm">{scene.visualScript}</p>
                         </div>
                       </div>
 
@@ -171,9 +216,12 @@ export default function App() {
                         <div className="mt-1 text-[#5A5A40]">
                           <Mic2 size={18} />
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <p className="text-xs uppercase font-bold text-[#1A1A1A]/40 mb-1">Audio Dialogue (Hindi)</p>
-                          <p className="text-xl font-medium text-[#1A1A1A]">{scene.audioScript}</p>
+                          <div className="bg-[#5A5A40]/5 p-4 rounded-2xl border border-[#5A5A40]/10">
+                            <p className="text-sm font-bold text-[#5A5A40] mb-1">{scene.speaker}:</p>
+                            <p className="text-2xl font-medium text-[#1A1A1A]">{scene.audioScript}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -186,7 +234,7 @@ export default function App() {
                 <h4 className="text-xl serif mb-2">Pasand aaya?</h4>
                 <p className="opacity-80 mb-6">In prompts ko Flow AI mein daalo aur apna cartoon banao!</p>
                 <button 
-                  onClick={() => copyToClipboard(script.scenes.map(formatSceneMarkdown).join('\n\n'), 999)}
+                  onClick={copyFullScript}
                   className="bg-white text-[#5A5A40] px-8 py-3 rounded-full font-bold hover:bg-[#F5F5F0] transition-colors flex items-center gap-2 mx-auto"
                 >
                   {copiedIndex === 999 ? <Check size={18} /> : <Copy size={18} />}
